@@ -1,0 +1,6 @@
+BASE_IMAGE_NAME=tuxdude/homelab-base
+BASE_IMAGE_TAG=master
+USER_NAME=chrony
+GROUP_NAME=chrony
+USER_ID=16006
+GROUP_ID=16006
