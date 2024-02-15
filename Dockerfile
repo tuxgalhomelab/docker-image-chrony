@@ -32,6 +32,9 @@ RUN \
 # Chrony NTP server.
 EXPOSE 123/udp
 
+# Use chronyc tracking command as the health checker.
+HEALTHCHECK CMD chronyc -n tracking || exit 1
+
 USER ${USER_NAME}:${GROUP_NAME}
 WORKDIR /
 CMD ["/usr/sbin/chronyd", "-4", "-d", "-U", "-u", "chrony", "-x", "-L", "0", "-f", "/chrony/chrony.conf"]
