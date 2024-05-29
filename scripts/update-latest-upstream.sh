@@ -23,4 +23,6 @@ if [[ "${existing_upstream_ver:?}" == "${latest_upstream_ver:?}" ]]; then
     echo "Existing config is already up to date and pointing to the latest upstream ${pkg:?} version '${latest_upstream_ver:?}'"
 else
     echo "Updated ${pkg:?} '${existing_upstream_ver:?}' -> '${latest_upstream_ver:?}'"
+    git add ${PACKAGES_FILE:?}
+    git commit -m "feat: Bump upstream ${pkg:?} version to ${latest_upstream_ver:?}."
 fi
