@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Usage: prepare-release.sh v0.1.0 4.3-2
+# Usage:
+#   prepare-release.sh
+#   prepare-release.sh v0.1.1
 
 set -e -o pipefail
 
@@ -7,6 +9,7 @@ script_parent_dir="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 git_repo_dir="$(realpath "${script_parent_dir:?}/..")"
 
 ARGS_FILE="${git_repo_dir:?}/config/ARGS"
+PACKAGES_FILE="${git_repo_dir:?}/config/PACKAGES_INSTALL"
 
 docker_hub_tags() {
     docker_hub_repo="${1:?}"
@@ -48,17 +51,38 @@ update_latest_version() {
     set_config_arg "${image_arg_prefix:?}_TAG" "${ver:?}"
 }
 
+get_latest_tag() {
+    git tag --list | sort --version-sort --reverse | head -1
+}
+
+get_next_semantic_ver() {
+    echo "${1:?}" | sed -E 's#^v([0-9]+)\.([0-9]+)\.([0-9]+)-.+$#v\1.\2.\3#g' | awk -F. -v OFS=. '{$NF += 1 ; print}'
+}
+
+get_package_version() {
+    arg="${1:?}"
+    sed -n -E "s/^${arg:?}=(.*)\$/\\1/p" ${PACKAGES_FILE:?} | sed -E 's/^(.+)(\+.+)$/\1/g'
+}
+
 pkg="Chrony"
 tag_pkg="chrony"
-rel_ver="${1:?}"
-pkg_ver="${2:?}"
+pkg_install_name="chrony"
+
+if [ -z "$1" ]; then
+    # Generate the next semantic version number if version number is not supplied.
+    rel_ver="$(get_next_semantic_ver $(get_latest_tag))"
+else
+    # Use the supplied version number from the command line arg.
+    rel_ver="${1:?}"
+fi
+pkg_ver="$(get_package_version ${pkg_install_name:?})"
 
 git branch temp-release
 git checkout temp-release
 update_latest_version BASE_IMAGE
 git add ${ARGS_FILE:?}
-git commit -m "feat: Prepare for ${rel_ver:?} release based off ${pkg:?} ${pkg_ver:?}"
+git commit -m "feat: Prepare for ${rel_ver:?} release based off ${pkg:?} ${pkg_ver:?}."
 echo "Creating tag ${rel_ver:?}-${tag_pkg}-${pkg_ver:?}"
-git githubtag -m "${rel_ver:?} release based off ${pkg:?} ${pkg_ver:?}" ${rel_ver:?}-${tag_pkg:?}-${pkg_ver:?}
+git githubtag -m "${rel_ver:?} release based off ${pkg:?} ${pkg_ver:?}." ${rel_ver:?}-${tag_pkg:?}-${pkg_ver:?}
 git checkout master
 git branch -D temp-release
