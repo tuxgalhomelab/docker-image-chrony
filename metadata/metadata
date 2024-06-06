@@ -5,6 +5,8 @@ set -e -o pipefail
 
 PACKAGE_NAME="Chrony"
 PACKAGES_FILE_PACKAGE_NAME="chrony"
+RELEASE_PACKAGE_NAME="Chrony"
+RELEASE_TAG_PACKAGE_NAME="chrony"
 UPSTREAM_IMAGE_CONFIG_KEY_PREFIX="BASE_IMAGE"
 TEST_TYPE="foreground"
 TEST_CONTAINER_TYPE="chrony"
@@ -23,6 +25,10 @@ update_latest_upstream_version() {
     local latest_ver="${2:?}"
     echo "Updating ${PACKAGE_NAME:?} '${cur_ver:?}' -> '${latest_ver:?}'"
     git add ${PACKAGES_INSTALL_FILE:?}
+}
+
+package_current_release_version() {
+    current_upstream_version
 }
 
 test_start_container() {
