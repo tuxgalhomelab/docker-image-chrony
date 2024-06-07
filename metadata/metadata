@@ -8,8 +8,9 @@ PACKAGES_FILE_PACKAGE_NAME="chrony"
 RELEASE_PACKAGE_NAME="Chrony"
 RELEASE_TAG_PACKAGE_NAME="chrony"
 BASE_IMAGE_CONFIG_KEY_PREFIX="BASE_IMAGE"
-TEST_TYPE="foreground"
+TEST_TYPE="background"
 TEST_CONTAINER_TYPE="chrony"
+TEST_CONTAINER_START_WAIT_SECONDS="10"
 
 current_upstream_version() {
     get_packages_install_package_version "${PACKAGES_FILE_PACKAGE_NAME:?}"
@@ -33,5 +34,16 @@ package_current_release_version() {
 
 test_start_container() {
     local container_name="${1:?}"
-    # TODO: Add testing logic here.
+    docker run \
+        --name ${container_name:?} \
+        --detach \
+        --rm \
+        ${IMAGE:?}
+}
+
+test_image_after_container_startup() {
+    local container_name="${1:?}"
+
+    echo "Verifying ntp using ntpdate"
+    ntpdate -q "$(container_ip "${container_name:?}")"
 }
