@@ -1,3 +1,11 @@
+# syntax=docker/dockerfile:1.3
+
+ARG BASE_IMAGE_NAME
+ARG BASE_IMAGE_TAG
+FROM ${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG} AS with-configs
+
+COPY config/chrony.conf /configs/
+
 ARG BASE_IMAGE_NAME
 ARG BASE_IMAGE_TAG
 FROM ${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}
@@ -10,7 +18,7 @@ ARG GROUP_NAME
 ARG USER_ID
 ARG GROUP_ID
 
-RUN \
+RUN --mount=type=bind,target=/configs,from=with-configs,source=/configs \
     set -e -o pipefail \
     # Create the user and the group. \
     && homelab add-user \
@@ -23,7 +31,7 @@ RUN \
     && homelab install util-linux ${PACKAGES_TO_INSTALL:?} \
     && homelab remove util-linux \
     && mkdir -p /chrony /run/chrony /var/lib/chrony \
-    && touch /chrony/chrony.conf \
+    && cp /configs/chrony.conf /chrony/chrony.conf \
     && chown -R ${USER_NAME:?}:${GROUP_NAME:?} /chrony /run/chrony /var/lib/chrony \
     && chmod 0750 /run/chrony \
     # Clean up. \
