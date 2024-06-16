@@ -19,7 +19,7 @@ ARG USER_ID
 ARG GROUP_ID
 
 RUN --mount=type=bind,target=/configs,from=with-configs,source=/configs \
-    set -e -o pipefail \
+    set -E -e -o pipefail \
     # Create the user and the group. \
     && homelab add-user \
         ${USER_NAME:?} \
