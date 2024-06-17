@@ -2,9 +2,10 @@
 
 ARG BASE_IMAGE_NAME
 ARG BASE_IMAGE_TAG
-FROM ${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG} AS with-configs
+FROM ${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG} AS with-configs-and-scripts
 
 COPY config/chrony.conf /configs/
+COPY scripts/start-chrony.sh /scripts/
 
 ARG BASE_IMAGE_NAME
 ARG BASE_IMAGE_TAG
@@ -18,7 +19,9 @@ ARG GROUP_NAME
 ARG USER_ID
 ARG GROUP_ID
 
-RUN --mount=type=bind,target=/configs,from=with-configs,source=/configs \
+RUN \
+    --mount=type=bind,target=/configs,from=with-configs-and-scripts,source=/configs \
+    --mount=type=bind,target=/scripts,from=with-configs-and-scripts,source=/scripts \
     set -E -e -o pipefail \
     # Create the user and the group. \
     && homelab add-user \
@@ -30,9 +33,12 @@ RUN --mount=type=bind,target=/configs,from=with-configs,source=/configs \
     # Install dependencies. \
     && homelab install util-linux ${PACKAGES_TO_INSTALL:?} \
     && homelab remove util-linux \
-    && mkdir -p /data/chrony /run/chrony /var/lib/chrony \
+    && mkdir -p /opt/chrony /data/chrony /run/chrony /var/lib/chrony \
     && cp /configs/chrony.conf /data/chrony/chrony.conf \
-    && chown -R ${USER_NAME:?}:${GROUP_NAME:?} /data/chrony /run/chrony /var/lib/chrony \
+    # Copy the start-chrony.sh script. \
+    && cp /scripts/start-chrony.sh /opt/chrony/ \
+    && ln -sf /opt/chrony/start-chrony.sh /opt/bin/start-chrony \
+    && chown -R ${USER_NAME:?}:${GROUP_NAME:?} /opt/chrony /opt/bin/start-chrony /data/chrony /run/chrony /var/lib/chrony \
     && chmod 0750 /run/chrony \
     # Clean up. \
     && homelab cleanup
@@ -45,4 +51,4 @@ HEALTHCHECK CMD chronyc -n tracking || exit 1
 
 USER ${USER_NAME}:${GROUP_NAME}
 WORKDIR /
-CMD ["/usr/sbin/chronyd", "-4", "-d", "-U", "-u", "chrony", "-x", "-L", "0", "-f", "/data/chrony/chrony.conf"]
+CMD ["start-chrony"]

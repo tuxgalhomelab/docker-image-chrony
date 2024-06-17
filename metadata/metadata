@@ -47,7 +47,7 @@ test_start_container() {
 test_image_after_container_startup() {
     local container_name="${1:?}"
 
-    if ! hash foo 2>/dev/null; then
+    if ! hash ntpdate 2>/dev/null; then
         echo "ntpdate not found, installing ..."
         sudo DEBIAN_FRONTEND=noninteractive apt-get update
         sudo DEBIAN_FRONTEND=noninteractive apt-get install -qq ntpdate
