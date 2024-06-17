@@ -47,7 +47,7 @@ RUN \
 EXPOSE 123/udp
 
 # Use chronyc tracking command as the health checker.
-HEALTHCHECK CMD chronyc -n tracking || exit 1
+HEALTHCHECK CMD chronyc -n tracking
 
 USER ${USER_NAME}:${GROUP_NAME}
 WORKDIR /
