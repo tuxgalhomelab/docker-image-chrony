@@ -30,9 +30,9 @@ RUN --mount=type=bind,target=/configs,from=with-configs,source=/configs \
     # Install dependencies. \
     && homelab install util-linux ${PACKAGES_TO_INSTALL:?} \
     && homelab remove util-linux \
-    && mkdir -p /chrony /run/chrony /var/lib/chrony \
-    && cp /configs/chrony.conf /chrony/chrony.conf \
-    && chown -R ${USER_NAME:?}:${GROUP_NAME:?} /chrony /run/chrony /var/lib/chrony \
+    && mkdir -p /data/chrony /run/chrony /var/lib/chrony \
+    && cp /configs/chrony.conf /data/chrony/chrony.conf \
+    && chown -R ${USER_NAME:?}:${GROUP_NAME:?} /data/chrony /run/chrony /var/lib/chrony \
     && chmod 0750 /run/chrony \
     # Clean up. \
     && homelab cleanup
@@ -45,4 +45,4 @@ HEALTHCHECK CMD chronyc -n tracking || exit 1
 
 USER ${USER_NAME}:${GROUP_NAME}
 WORKDIR /
-CMD ["/usr/sbin/chronyd", "-4", "-d", "-U", "-u", "chrony", "-x", "-L", "0", "-f", "/chrony/chrony.conf"]
+CMD ["/usr/sbin/chronyd", "-4", "-d", "-U", "-u", "chrony", "-x", "-L", "0", "-f", "/data/chrony/chrony.conf"]
