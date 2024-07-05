@@ -51,4 +51,6 @@ HEALTHCHECK CMD chronyc -n tracking
 
 USER ${USER_NAME}:${GROUP_NAME}
 WORKDIR /
+
 CMD ["start-chrony"]
+STOPSIGNAL SIGTERM
