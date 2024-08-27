@@ -23,6 +23,7 @@ RUN \
     --mount=type=bind,target=/configs,from=with-configs-and-scripts,source=/configs \
     --mount=type=bind,target=/scripts,from=with-configs-and-scripts,source=/scripts \
     set -E -e -o pipefail \
+    && export HOMELAB_VERBOSE=y \
     # Create the user and the group. \
     && homelab add-user \
         ${USER_NAME:?} \
