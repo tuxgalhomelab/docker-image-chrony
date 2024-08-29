@@ -17,6 +17,7 @@ ARG GROUP_NAME
 ARG USER_ID
 ARG GROUP_ID
 
+# hadolint ignore=SC3040
 RUN \
     --mount=type=bind,target=/configs,from=with-configs-and-scripts,source=/configs \
     --mount=type=bind,target=/scripts,from=with-configs-and-scripts,source=/scripts \
