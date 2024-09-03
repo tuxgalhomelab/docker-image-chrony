@@ -2,7 +2,7 @@
 set -E -e -o pipefail
 
 chrony_config="/data/chrony/chrony.conf"
-chrony_pid_file="/var/run/chrony/chronyd.pid"
+chrony_pid_file="/run/chrony/chronyd.pid"
 
 set_umask() {
     # Configure umask to allow write permissions for the group by default
