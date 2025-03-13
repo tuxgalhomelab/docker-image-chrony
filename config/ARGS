@@ -1,5 +1,5 @@
 BASE_IMAGE_NAME=tuxgal/homelab-base
-BASE_IMAGE_TAG=master
+BASE_IMAGE_TAG=0.3.3-bookworm-20250224-slim
 USER_NAME=chrony
 GROUP_NAME=chrony
 USER_ID=16006
